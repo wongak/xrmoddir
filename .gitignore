@@ -1,4 +1,8 @@
 .idea
 pkg
 bin
+# binary
+src/cmd/xrmoddir/xrmoddir
+# config
+src/cmd/xrmoddir/cfg/xrmoddir.cfg.json
 

@@ -1,0 +1,7 @@
+{
+	"Db": {
+		"Dsn": {
+			"mysql": "xrmoddir@/xrmoddir?charset=utf8&parseTime=true"
+		}
+	}
+}
