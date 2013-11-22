@@ -12,7 +12,11 @@ var cfgFile = flag.String("c", "cfg/xrmoddir.cfg.json", "Path to config file.")
 
 func main() {
 	flag.Parse()
-	_, err := loadConfig(*cfgFile)
+	cfg, err := loadConfig(*cfgFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = connectDb(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
