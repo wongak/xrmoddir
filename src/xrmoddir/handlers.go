@@ -22,8 +22,7 @@ func index(
 ) {
 	var buf bytes.Buffer
 	c := NewContent()
-	c.Content = "index.tmpl.html"
-	err := t.ExecuteTemplate(&buf, "layout_main.tmpl.html", c)
+	err := t.ExecuteTemplate(&buf, "index.tmpl.html", c)
 	if err != nil {
 		log.Printf("Template error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -39,10 +38,8 @@ func about(
 ) (respCode int, body string) {
 	var buf bytes.Buffer
 	respCode = http.StatusOK
-	buf.Reset()
 	c := NewContent()
-	c.Content = "about.tmpl.html"
-	err := t.ExecuteTemplate(&buf, "layout_main.tmpl.html", c)
+	err := t.ExecuteTemplate(&buf, "about.tmpl.html", c)
 	if err != nil {
 		log.Printf("Template error: %v", err)
 		respCode = http.StatusInternalServerError

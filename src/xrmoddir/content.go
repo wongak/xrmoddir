@@ -1,8 +1,7 @@
 package xrmoddir
 
 type XRModDirContent struct {
-	Content string
-	Data    map[string]interface{}
+	Data map[string]interface{}
 }
 
 func NewContent() *XRModDirContent {
