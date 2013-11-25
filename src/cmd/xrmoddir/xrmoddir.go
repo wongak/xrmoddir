@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	srv, err := xrmoddir.NewServer(db)
+	srv, err := xrmoddir.NewServer(db, cfg.Html.HtmlSrcDir)
 	if err != nil {
 		log.Fatalf("Error initializing server: %v", err)
 	}

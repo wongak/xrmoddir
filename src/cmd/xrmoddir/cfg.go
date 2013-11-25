@@ -10,6 +10,10 @@ type Config struct {
 	Db struct {
 		Dsn map[string]string
 	}
+
+	Html struct {
+		HtmlSrcDir string
+	}
 }
 
 func loadConfig(cfgFileName string) (*Config, error) {
