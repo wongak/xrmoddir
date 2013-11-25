@@ -5,4 +5,5 @@ bin
 src/cmd/xrmoddir/xrmoddir
 # config
 src/cmd/xrmoddir/cfg/xrmoddir.cfg.json
-
+# local resources
+localres
