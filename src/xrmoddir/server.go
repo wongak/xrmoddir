@@ -64,11 +64,6 @@ func (s *Server) initDefaults() error {
 	}
 	s.Use(martini.Static(staticPath))
 
-	// content
-	c := NewContent()
-	c.Data["title"] = "X Rebirth Mod Directory"
-	s.Map(c)
-
 	return nil
 }
 

@@ -1,16 +1,15 @@
 package xrmoddir
 
 type XRModDirContent struct {
-	Data map[string]interface{}
+	Content string
+	Data    map[string]interface{}
 }
 
 func NewContent() *XRModDirContent {
 	m := make(map[string]interface{})
-	return &XRModDirContent{
+	c := &XRModDirContent{
 		Data: m,
 	}
-}
-
-func (x XRModDirContent) Get() map[string]interface{} {
-	return x.Data
+	c.Data["title"] = "X Rebirth Mod Directory"
+	return c
 }

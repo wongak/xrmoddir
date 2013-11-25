@@ -1,4 +1,4 @@
-// X Rebirtgh Mod Directory
+// X Rebirth Mod Directory
 //
 // Server
 package main
