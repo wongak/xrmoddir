@@ -14,14 +14,13 @@ func setHandlers(s *Server) error {
 	return nil
 }
 
-var buf bytes.Buffer
-
+// The Index Page
 func index(
 	w http.ResponseWriter,
 	t *template.Template,
 	l *log.Logger,
 ) {
-	buf.Reset()
+	var buf bytes.Buffer
 	c := NewContent()
 	c.Content = "index.tmpl.html"
 	err := t.ExecuteTemplate(&buf, "layout_main.tmpl.html", c)
@@ -33,10 +32,12 @@ func index(
 	io.Copy(w, &buf)
 }
 
+// About page
 func about(
 	t *template.Template,
 	l *log.Logger,
 ) (respCode int, body string) {
+	var buf bytes.Buffer
 	respCode = http.StatusOK
 	buf.Reset()
 	c := NewContent()
