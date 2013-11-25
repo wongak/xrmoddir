@@ -84,12 +84,17 @@ CREATE TABLE IF NOT EXISTS `mod_metadata` (
   `mod_id` INT UNSIGNED NOT NULL,
   `timestamp` BIGINT UNSIGNED NOT NULL,
   `url` VARCHAR(255) NULL,
-  `modid` VARCHAR(125) NULL,
-  `version` INT UNSIGNED NULL,
+  `author` VARCHAR(75) NULL,
   `date` VARCHAR(75) NULL,
+  `description` TEXT NULL,
+  `modid` VARCHAR(125) NULL,
+  `modname` TEXT NULL,
+  `version` INT UNSIGNED NULL,
   `save` TINYINT(1) NULL,
   `enabled` TINYINT(1) NULL,
   PRIMARY KEY (`mod_id`, `timestamp`),
+  INDEX `url` (`url` ASC),
+  INDEX `modid` (`modid` ASC),
   CONSTRAINT `fk_mod_metadata_mod_id`
     FOREIGN KEY (`mod_id`)
     REFERENCES `mods` (`id`)
