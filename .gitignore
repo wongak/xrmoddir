@@ -7,3 +7,6 @@ src/cmd/xrmoddir/xrmoddir
 src/cmd/xrmoddir/cfg/xrmoddir.cfg.json
 # local resources
 localres
+# schema backup file
+resources/mysql/xrmoddir.mwb.bak
+
