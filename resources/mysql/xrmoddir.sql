@@ -103,6 +103,46 @@ CREATE TABLE IF NOT EXISTS `mod_metadata` (
 ENGINE = InnoDB;
 
 
+-- -----------------------------------------------------
+-- Table `user_metadata`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `user_metadata` ;
+
+CREATE TABLE IF NOT EXISTS `user_metadata` (
+  `user_id` INT UNSIGNED NOT NULL,
+  `timestamp` BIGINT UNSIGNED NOT NULL,
+  `email` VARCHAR(255) NULL,
+  `active` TINYINT(1) NULL,
+  PRIMARY KEY (`user_id`, `timestamp`),
+  INDEX `email` (`email` ASC),
+  CONSTRAINT `fk_user_metadata_user_id`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`id`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `user_tokens`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `user_tokens` ;
+
+CREATE TABLE IF NOT EXISTS `user_tokens` (
+  `token` CHAR(64) NOT NULL,
+  `created` DATETIME NOT NULL,
+  `user_id` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`token`),
+  INDEX `created` (`created` ASC),
+  INDEX `fk_user_tokens_user_id_idx` (`user_id` ASC),
+  CONSTRAINT `fk_user_tokens_user_id`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`id`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
