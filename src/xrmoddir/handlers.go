@@ -61,7 +61,7 @@ func register(
 	var buf bytes.Buffer
 	respCode = http.StatusOK
 	c := NewContent()
-	c.Data["passwordMinLenght"] = USER_PASSWORD_MINLENGTH
+	c.Data["passwordMinLength"] = USER_PASSWORD_MINLENGTH
 	c.Data["usernameMinLength"] = USER_USERNAME_MINLENGTH
 	err := t.ExecuteTemplate(&buf, "register.tmpl.html", c)
 	if err != nil {
