@@ -9,4 +9,6 @@ src/cmd/xrmoddir/cfg/xrmoddir.cfg.json
 localres
 # schema backup file
 resources/mysql/xrmoddir.mwb.bak
+# hg libraries
+src/code.google.com
 
