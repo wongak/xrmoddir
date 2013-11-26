@@ -2,16 +2,24 @@ package xrmoddir
 
 import (
 	"bytes"
+	"database/sql"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"xrmoddir/entity/user"
+)
+
+const (
+	USER_USERNAME_MINLENGTH = 4
+	USER_PASSWORD_MINLENGTH = 6
 )
 
 func setHandlers(s *Server) error {
 	s.Get("/", index)
 	s.Get("/about", about)
 	s.Get("/register", register)
+	s.Post("/register", handleRegistration)
 	return nil
 }
 
@@ -31,19 +39,10 @@ func handlePage(templateName string, t *template.Template, l *log.Logger) (respC
 
 // The Index Page
 func index(
-	w http.ResponseWriter,
 	t *template.Template,
 	l *log.Logger,
-) {
-	var buf bytes.Buffer
-	c := NewContent()
-	err := t.ExecuteTemplate(&buf, "index.tmpl.html", c)
-	if err != nil {
-		log.Printf("Template error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	io.Copy(w, &buf)
+) (int, string) {
+	return handlePage("index.tmpl.html", t, l)
 }
 
 // About page
@@ -59,5 +58,75 @@ func register(
 	t *template.Template,
 	l *log.Logger,
 ) (respCode int, body string) {
-	return handlePage("register.tmpl.html", t, l)
+	var buf bytes.Buffer
+	respCode = http.StatusOK
+	c := NewContent()
+	c.Data["passwordMinLenght"] = USER_PASSWORD_MINLENGTH
+	c.Data["usernameMinLength"] = USER_USERNAME_MINLENGTH
+	err := t.ExecuteTemplate(&buf, "register.tmpl.html", c)
+	if err != nil {
+		log.Printf("Template error: %v", err)
+		respCode = http.StatusInternalServerError
+		return
+	}
+	body = buf.String()
+	return
+}
+
+func handleRegistration(
+	w http.ResponseWriter,
+	r *http.Request,
+	t *template.Template,
+	l *log.Logger,
+	db *sql.DB,
+) {
+	var buf bytes.Buffer
+	c := NewContent()
+	c.Data["passwordMinLength"] = USER_PASSWORD_MINLENGTH
+	c.Data["usernameMinLength"] = USER_USERNAME_MINLENGTH
+
+	// form handling
+	u := new(user.User)
+	errors := make(map[string]bool)
+	username := r.FormValue("username")
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	password2 := r.FormValue("password2")
+	if username == "" {
+		errors["noUsername"] = true
+	} else if len(username) < USER_USERNAME_MINLENGTH {
+		errors["usernameLen"] = true
+	} else {
+		u.Username = username
+	}
+	if email == "" {
+		errors["noEmail"] = true
+	} else {
+		u.Email = email
+	}
+	if password == "" {
+		errors["noPassword"] = true
+	} else if len(password) < USER_PASSWORD_MINLENGTH {
+		errors["passwordLen"] = true
+	} else if password != password2 {
+		errors["passwordMismatch"] = true
+	} else {
+		err := u.SetPassword(password)
+		if err != nil {
+			log.Printf("Error on setting password: %v", err)
+			errors["internal"] = true
+		}
+	}
+	c.Data["errors"] = errors
+	c.Data["User"] = u
+	err := t.ExecuteTemplate(&buf, "register.tmpl.html", c)
+	if err != nil {
+		log.Printf("Template error: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if len(errors) > 0 {
+		io.Copy(w, &buf)
+		return
+	}
 }
