@@ -1,0 +1,32 @@
+{{template "head" .}}
+{{template "body_start" .}}
+<div class="jumbotron">
+<div class="container">
+    <h1>Hello Mod Developer</h1>
+    <p>Register your mod here.</p>
+    <p>Please start by registering an admin user.</p>
+</div>
+</div>
+<div class="container">
+    <form role="form">
+        <div class="form-group">
+            <label for="registerU">Username</label>
+            <input type="text" id="registerU" name="username" class="form-control" placeholder="Enter Username" />
+        </div>
+        <div class="form-group">
+            <label for="registerE">E-Mail address</label>
+            <input type="email" id="registerE" name="email" class="form-control" placeholder="Enter E-Mail" />
+        </div>
+        <div class="form-group">
+            <label for="registerP">Password</label>
+            <input type="password" id="registerP" name="password" class="form-control" placeholder="Choose a password" />
+        </div>
+        <div class="form-group">
+            <label for="registerP2">Repeat Password</label>
+            <input type="password" id="registerP2" name="password2" class="form-control" placeholder="Repeat the password" />
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+</div>
+{{template "body_end" .}}
+{{template "footer" .}}
