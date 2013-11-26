@@ -98,6 +98,13 @@ func handleRegistration(
 		errors["usernameLen"] = true
 	} else {
 		u.Username = username
+		userId, err := user.SQLIdByUsername(db, username)
+		if err != nil {
+			log.Printf("Error on checking username: %v", err)
+			errors["internal"] = true
+		} else if userId != 0 {
+			errors["usernameInUse"] = true
+		}
 	}
 	if email == "" {
 		errors["noEmail"] = true

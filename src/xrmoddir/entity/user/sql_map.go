@@ -46,6 +46,15 @@ INNER JOIN %s AS meta ON
 	stmts["select"] = fmt.Sprintf(stmt, TABLE_NAME_USERS, TABLE_NAME_USER_PASSWORDS, TABLE_NAME_USER_PASSWORDS, TABLE_NAME_USER_METADATA, TABLE_NAME_USER_METADATA)
 
 	stmt = `
+SELECT
+	id
+FROM %s
+WHERE
+	username = ?
+	`
+	stmts["selectIdByUsername"] = fmt.Sprintf(stmt, TABLE_NAME_USERS)
+
+	stmt = `
 INSERT INTO %s
 (username, created)
 VALUES
@@ -106,4 +115,17 @@ func SQLUserById(db *sql.DB, id int64) (*User, error) {
 func SQLUserByUsername(db *sql.DB, username string) (*User, error) {
 	row := db.QueryRow(stmts["select"]+" WHERE u.username = ?", username)
 	return selectUser(row)
+}
+
+func SQLIdByUsername(db *sql.DB, username string) (int64, error) {
+	row := db.QueryRow(stmts["selectIdByUsername"], username)
+	var id int64
+	err := row.Scan(&id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, nil
+		}
+		return 0, fmt.Errorf("SQLUserByUsername: SQL Error: %v", err)
+	}
+	return id, nil
 }

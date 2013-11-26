@@ -9,12 +9,20 @@
 </div>
 <div class="container">
     <form role="form" method="post">
+{{if .Data.errors.internal}}
+        <div class="alert alert-danger">
+            <strong>Error!</strong> There was a problem while we were processing your request. Please try again later or contact the support.
+        </div>
+{{end}}
         <p class="help-block">All fields are mandatory.</p>
-        <div class="form-group{{if .Data.errors.noUsername}} has-error{{end}}">
+        <div class="form-group{{if or .Data.errors.noUsername | or .Data.errors.usernameInUse 0}} has-error{{end}}">
             <label for="registerU">Username</label>
             <input type="text" id="registerU" name="username" class="form-control" placeholder="Enter Username" {{if .Data.User.Username}}value="{{.Data.User.Username}}"{{end}}/>
 {{if .Data.errors.noUsername}}
             <p class="help-block">Please enter a username.</p>
+{{end}}
+{{if .Data.errors.usernameInUse}}
+            <p class="help-block">This username is already in use.</p>
 {{end}}
         </div>
         <div class="form-group{{if .Data.errors.noEmail}} has-error{{end}}">
