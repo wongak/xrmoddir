@@ -9,13 +9,15 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"xrmoddir/user"
 )
 
 type Server struct {
 	*martini.Martini
 	martini.Router
 
-	htmlSrcDir string
+	htmlSrcDir  string
+	userHandler *user.Handler
 }
 
 func NewServer(db *sql.DB, htmlSrcDir string) (*Server, error) {
@@ -29,10 +31,19 @@ func NewServer(db *sql.DB, htmlSrcDir string) (*Server, error) {
 	// default mapping
 	m.Map(db)
 
-	s := &Server{m, r, htmlSrcDir}
+	s := &Server{
+		Martini: m,
+		Router:  r,
+
+		htmlSrcDir: htmlSrcDir,
+	}
 	err := s.initDefaults()
 	if err != nil {
 		return nil, fmt.Errorf("Error initializing server: %v", err)
+	}
+	s.userHandler, err = user.NewHandler()
+	if err != nil {
+		return nil, fmt.Errorf("Error initializing user handler: %v", err)
 	}
 	err = setHandlers(s)
 	if err != nil {

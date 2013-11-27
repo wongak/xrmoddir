@@ -1,4 +1,4 @@
-package xrmoddir
+package content
 
 type XRModDirContent struct {
 	Data map[string]interface{}
