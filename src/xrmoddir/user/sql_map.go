@@ -3,6 +3,7 @@ package user
 import (
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 const (
@@ -157,4 +158,47 @@ func SQLIdByEmail(db *sql.DB, email string) (int64, error) {
 		return 0, fmt.Errorf("SQLIdByEmail: SQL Error: %v", err)
 	}
 	return id, nil
+}
+
+func SQLInsertUser(tx *sql.Tx, u *User) (int64, error) {
+	stmt, err := tx.Prepare(stmts["insertUser"])
+	if err != nil {
+		return 0, fmt.Errorf("SQLInsertUser: SQL Error: %v", err)
+	}
+	u.Created = time.Now().UTC()
+	res, err := stmt.Exec(u.Username, u.Created)
+	if err != nil {
+		return 0, fmt.Errorf("SQLInsertUser: SQL Error on exec: %v", err)
+	}
+	u.Id, err = res.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("SQLInsertUser: Last insert id error: %v", err)
+	}
+	return u.Id, nil
+}
+
+func SQLInsertPassword(tx *sql.Tx, u *User) error {
+	stmt, err := tx.Prepare(stmts["insertPassword"])
+	if err != nil {
+		return fmt.Errorf("SQLInsertPassword: SQL Error: %v", err)
+	}
+	ts := time.Now().UTC().UnixNano()
+	_, err = stmt.Exec(u.Id, ts, u.password)
+	if err != nil {
+		return fmt.Errorf("SQLInsertPassword: SQL Error on exec: %v", err)
+	}
+	return nil
+}
+
+func SQLInsertMeta(tx *sql.Tx, u *User) error {
+	stmt, err := tx.Prepare(stmts["insertMetadata"])
+	if err != nil {
+		return fmt.Errorf("SQLInsertMeta: SQL Error: %v", err)
+	}
+	ts := time.Now().UTC().UnixNano()
+	_, err = stmt.Exec(u.Id, ts, u.Email, u.Active)
+	if err != nil {
+		return fmt.Errorf("SQLInsertMeta: SQL Error on exec: %v", err)
+	}
+	return nil
 }
