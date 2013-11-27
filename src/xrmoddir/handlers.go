@@ -86,6 +86,8 @@ func handleRegistration(
 	c.Data["usernameMinLength"] = USER_USERNAME_MINLENGTH
 
 	// form handling
+	var userId int64
+	var err error
 	u := new(user.User)
 	errors := make(map[string]bool)
 	username := r.FormValue("username")
@@ -94,22 +96,31 @@ func handleRegistration(
 	password2 := r.FormValue("password2")
 	if username == "" {
 		errors["noUsername"] = true
-	} else if len(username) < USER_USERNAME_MINLENGTH {
-		errors["usernameLen"] = true
 	} else {
 		u.Username = username
-		userId, err := user.SQLIdByUsername(db, username)
-		if err != nil {
-			log.Printf("Error on checking username: %v", err)
-			errors["internal"] = true
-		} else if userId != 0 {
-			errors["usernameInUse"] = true
+		if len(username) < USER_USERNAME_MINLENGTH {
+			errors["usernameLen"] = true
+		} else {
+			userId, err = user.SQLIdByUsername(db, username)
+			if err != nil {
+				log.Printf("Error on checking username: %v", err)
+				errors["internal"] = true
+			} else if userId != 0 {
+				errors["usernameInUse"] = true
+			}
 		}
 	}
 	if email == "" {
 		errors["noEmail"] = true
 	} else {
 		u.Email = email
+		userId, err = user.SQLIdByEmail(db, email)
+		if err != nil {
+			log.Printf("Error on checking email: %v", err)
+			errors["internal"] = true
+		} else if userId != 0 {
+			errors["emailInUse"] = true
+		}
 	}
 	if password == "" {
 		errors["noPassword"] = true
@@ -126,7 +137,7 @@ func handleRegistration(
 	}
 	c.Data["errors"] = errors
 	c.Data["User"] = u
-	err := t.ExecuteTemplate(&buf, "register.tmpl.html", c)
+	err = t.ExecuteTemplate(&buf, "register.tmpl.html", c)
 	if err != nil {
 		log.Printf("Template error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)

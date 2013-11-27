@@ -55,6 +55,22 @@ WHERE
 	stmts["selectIdByUsername"] = fmt.Sprintf(stmt, TABLE_NAME_USERS)
 
 	stmt = `
+SELECT
+	u.id
+FROM %s AS u
+INNER JOIN %s AS meta ON
+	meta.user_id = u.id
+	AND
+	meta.timestamp = (
+		SELECT MAX(timestamp)
+		FROM %s
+		WHERE
+		user_id = meta.user_id
+	)
+	`
+	stmts["selectIdByMeta"] = fmt.Sprintf(stmt, TABLE_NAME_USERS, TABLE_NAME_USER_METADATA, TABLE_NAME_USER_METADATA)
+
+	stmt = `
 INSERT INTO %s
 (username, created)
 VALUES
@@ -125,7 +141,20 @@ func SQLIdByUsername(db *sql.DB, username string) (int64, error) {
 		if err == sql.ErrNoRows {
 			return 0, nil
 		}
-		return 0, fmt.Errorf("SQLUserByUsername: SQL Error: %v", err)
+		return 0, fmt.Errorf("SQLIdByUsername: SQL Error: %v", err)
+	}
+	return id, nil
+}
+
+func SQLIdByEmail(db *sql.DB, email string) (int64, error) {
+	row := db.QueryRow(stmts["selectIdByMeta"]+" WHERE meta.email = ?", email)
+	var id int64
+	err := row.Scan(&id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, nil
+		}
+		return 0, fmt.Errorf("SQLIdByEmail: SQL Error: %v", err)
 	}
 	return id, nil
 }

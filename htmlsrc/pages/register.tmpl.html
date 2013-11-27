@@ -15,38 +15,49 @@
         </div>
 {{end}}
         <p class="help-block">All fields are mandatory.</p>
-        <div class="form-group{{if or .Data.errors.noUsername | or .Data.errors.usernameInUse 0}} has-error{{end}}">
+        {{$userError := or .Data.errors.noUsername | or .Data.errors.usernameLen | or .Data.errors.usernameInUse 0}}
+        <div class="form-group{{if $userError}} has-error{{end}}">
             <label for="registerU">Username</label>
             <input type="text" id="registerU" name="username" class="form-control" placeholder="Enter Username" {{if .Data.User.Username}}value="{{.Data.User.Username}}"{{end}}/>
-{{if .Data.errors.noUsername}}
+            {{if .Data.errors.noUsername}}
             <p class="help-block">Please enter a username.</p>
-{{end}}
-{{if .Data.errors.usernameInUse}}
+            {{end}}
+            {{if .Data.errors.usernameLen}}
+            <p class="help-block">The username is too short. Minimum length is {{.Data.usernameMinLength}}.</p>
+            {{end}}
+            {{if .Data.errors.usernameInUse}}
             <p class="help-block">This username is already in use.</p>
-{{end}}
+            {{end}}
+            {{if not ($userError)}}
+            <p class="help-block">Minimum length is {{.Data.usernameMinLength}}. Must start with a letter. Only alphanumeric characters allowed.</p>
+            {{end}}
         </div>
-        <div class="form-group{{if .Data.errors.noEmail}} has-error{{end}}">
+        {{$emailError := or .Data.errors.noEmail | or .Data.errors.emailInUse 0}}
+        <div class="form-group{{if $emailError}} has-error{{end}}">
             <label for="registerE">E-Mail address</label>
-            <input type="email" id="registerE" name="email" class="form-control" placeholder="Enter E-Mail" />
-{{if .Data.errors.noEmail}}
+            <input type="email" id="registerE" name="email" class="form-control" placeholder="Enter E-Mail" {{if .Data.User.Email}}value="{{.Data.User.Email}}"{{end}}/>
+            {{if .Data.errors.noEmail}}
             <p class="help-block">Please enter an e-mail address.</p>
-{{end}}
+            {{end}}
+            {{if .Data.errors.emailInUse}}
+            <p class="help-block">This e-mail address is already in use.</p>
+            {{end}}
         </div>
         <div class="form-group{{if or .Data.errors.noPassword | or .Data.errors.passwordLen | or .Data.errors.passwordMismatch 0}} has-error{{end}}">
             <label for="registerP">Password</label>
             <input type="password" id="registerP" name="password" class="form-control" placeholder="Choose a password" />
-{{if .Data.errors.noPassword}}
+            {{if .Data.errors.noPassword}}
             <p class="help-block">Please choose a password.</p>
-{{end}}
-{{if .Data.errors.passwordLen}}
+            {{end}}
+            {{if .Data.errors.passwordLen}}
             <p class="help-block">Your password is too short. Minimum length is {{.Data.passwordMinLength}}.</p>
-{{end}}
-{{if .Data.errors.passwordMismatch}}
+            {{end}}
+            {{if .Data.errors.passwordMismatch}}
             <p class="help-block">The entered passwords do not match.</p>
-{{end}}
-{{if not (or .Data.errors.noPassword | or .Data.errors.passwordLen | or .Data.errors.passwordMismatch 0)}}
+            {{end}}
+            {{if not (or .Data.errors.noPassword | or .Data.errors.passwordLen | or .Data.errors.passwordMismatch 0)}}
             <p class="help-block">Please choose a reasonably secure password. Minimum length is {{.Data.passwordMinLength}}.</p>
-{{end}}
+            {{end}}
         </div>
         <div class="form-group{{if or .Data.errors.noPassword | or .Data.errors.passwordLen | or .Data.errors.passwordMismatch 0}} has-error{{end}}">
             <label for="registerP2">Repeat Password</label>
