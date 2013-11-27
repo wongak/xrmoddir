@@ -35,15 +35,12 @@ func NewServer(db *sql.DB, htmlSrcDir string) (*Server, error) {
 		Martini: m,
 		Router:  r,
 
-		htmlSrcDir: htmlSrcDir,
+		htmlSrcDir:  htmlSrcDir,
+		userHandler: user.DefaultHandler,
 	}
 	err := s.initDefaults()
 	if err != nil {
 		return nil, fmt.Errorf("Error initializing server: %v", err)
-	}
-	s.userHandler, err = user.NewHandler()
-	if err != nil {
-		return nil, fmt.Errorf("Error initializing user handler: %v", err)
 	}
 	err = setHandlers(s)
 	if err != nil {

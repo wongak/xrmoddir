@@ -3,13 +3,13 @@ package user
 import (
 	"bytes"
 	"database/sql"
-	"fmt"
 	"github.com/codegangsta/martini"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 	"xrmoddir/content"
 )
 
@@ -23,15 +23,12 @@ type Handler struct {
 	UsernamePattern *regexp.Regexp
 }
 
-func NewHandler() (*Handler, error) {
-	pattern, err := regexp.Compile("/^[a-z][a-z0-9]{3,}$/")
-	if err != nil {
-		return nil, fmt.Errorf("User handler initialization error: %v", err)
+var DefaultHandler *Handler
+
+func init() {
+	DefaultHandler = &Handler{
+		UsernamePattern: regexp.MustCompile("^[[:alpha:]][[:alnum:]]{3,}$"),
 	}
-	h := &Handler{
-		UsernamePattern: pattern,
-	}
-	return h, nil
 }
 
 func (h *Handler) SetRoutes(m martini.Router) {
@@ -61,13 +58,7 @@ func (h *Handler) Register() func(*template.Template, *log.Logger) (int, string)
 	}
 }
 
-func (h *Handler) HandleRegistration() func(
-	w http.ResponseWriter,
-	r *http.Request,
-	t *template.Template,
-	l *log.Logger,
-	db *sql.DB,
-) {
+func (h *Handler) HandleRegistration() func(http.ResponseWriter, *http.Request, *template.Template, *log.Logger, *sql.DB) {
 	return func(
 		w http.ResponseWriter,
 		r *http.Request,
@@ -95,8 +86,10 @@ func (h *Handler) HandleRegistration() func(
 			u.Username = username
 			if len(username) < USER_USERNAME_MINLENGTH {
 				errors["usernameLen"] = true
+			} else if !h.UsernamePattern.MatchString(username) {
+				errors["usernamePattern"] = true
 			} else {
-				userId, err = SQLIdByUsername(db, username)
+				userId, err = SQLIdByUsername(db, strings.ToLower(username))
 				if err != nil {
 					log.Printf("Error on checking username: %v", err)
 					errors["internal"] = true

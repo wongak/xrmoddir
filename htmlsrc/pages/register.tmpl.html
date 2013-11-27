@@ -15,7 +15,7 @@
         </div>
 {{end}}
         <p class="help-block">All fields are mandatory.</p>
-        {{$userError := or .Data.errors.noUsername | or .Data.errors.usernameLen | or .Data.errors.usernameInUse 0}}
+        {{$userError := or .Data.errors.noUsername | or .Data.errors.usernameLen | or .Data.errors.usernameInUse | or .Data.errors.usernamePattern 0}}
         <div class="form-group{{if $userError}} has-error{{end}}">
             <label for="registerU">Username</label>
             <input type="text" id="registerU" name="username" class="form-control" placeholder="Enter Username" {{if .Data.User.Username}}value="{{.Data.User.Username}}"{{end}}/>
@@ -24,6 +24,9 @@
             {{end}}
             {{if .Data.errors.usernameLen}}
             <p class="help-block">The username is too short. Minimum length is {{.Data.usernameMinLength}}.</p>
+            {{end}}
+            {{if .Data.errors.usernamePattern}}
+            <p class="help-block">The username must start with a letter. Only alphanumeric characters are allowed.</p>
             {{end}}
             {{if .Data.errors.usernameInUse}}
             <p class="help-block">This username is already in use.</p>
