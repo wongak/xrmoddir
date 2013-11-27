@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"xrmoddir/entity/user"
+	"xrmoddir/user"
 )
 
 const (
