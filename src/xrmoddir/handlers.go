@@ -8,11 +8,10 @@ import (
 	"xrmoddir/content"
 )
 
-func setHandlers(s *Server) error {
+func setHandlers(s *Server) {
 	s.Get("/", index)
 	s.Get("/about", about)
 	s.userHandler.SetRoutes(s.Router)
-	return nil
 }
 
 func handlePage(templateName string, t *template.Template, l *log.Logger) (respCode int, body string) {

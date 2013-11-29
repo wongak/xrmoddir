@@ -42,10 +42,7 @@ func NewServer(db *sql.DB, htmlSrcDir string) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Error initializing server: %v", err)
 	}
-	err = setHandlers(s)
-	if err != nil {
-		return nil, fmt.Errorf("Error setting handlers: %v", err)
-	}
+	setHandlers(s)
 	return s, nil
 }
 
@@ -71,7 +68,6 @@ func (s *Server) initDefaults() error {
 		return fmt.Errorf("Static path %s is not a directory.", staticPath)
 	}
 	s.Use(martini.Static(staticPath))
-
 	return nil
 }
 

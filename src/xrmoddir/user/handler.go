@@ -3,6 +3,7 @@ package user
 import (
 	"bytes"
 	"database/sql"
+	"fmt"
 	"github.com/codegangsta/martini"
 	"html/template"
 	"io"
@@ -37,7 +38,7 @@ func (h *Handler) SetRoutes(m martini.Router) {
 }
 
 // Registration page
-func (h *Handler) Register() func(*template.Template, *log.Logger) (int, string) {
+func (h *Handler) Register() martini.Handler {
 	return func(
 		t *template.Template,
 		l *log.Logger,
@@ -58,8 +59,9 @@ func (h *Handler) Register() func(*template.Template, *log.Logger) (int, string)
 	}
 }
 
-func (h *Handler) HandleRegistration() func(http.ResponseWriter, *http.Request, *template.Template, *log.Logger, *sql.DB) {
+func (h *Handler) HandleRegistration() martini.Handler {
 	return func(
+		ctx martini.Context,
 		w http.ResponseWriter,
 		r *http.Request,
 		t *template.Template,
@@ -123,17 +125,58 @@ func (h *Handler) HandleRegistration() func(http.ResponseWriter, *http.Request, 
 				errors["internal"] = true
 			}
 		}
-		c.Data["errors"] = errors
+		c.Data["errors"] = &errors
 		c.Data["User"] = u
-		err = t.ExecuteTemplate(&buf, "register.tmpl.html", c)
-		if err != nil {
-			log.Printf("Template error: %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
 		if len(errors) > 0 {
+			err = t.ExecuteTemplate(&buf, "register.tmpl.html", c)
+			if err != nil {
+				log.Printf("Template error: %v", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 			io.Copy(w, &buf)
 			return
+		}
+
+		var txErr error
+		tx, err := db.Begin()
+		if err != nil {
+			content.HandleError(fmt.Errorf("SQL Tx error: %v", err), l, t, w)
+			return
+		}
+		userId, err = SQLInsertUser(tx, u)
+		if err != nil {
+			txErr = tx.Rollback()
+			if txErr != nil {
+				content.HandleError(fmt.Errorf("SQL Tx error on rollback: %v. Error %v", txErr, err), l, t, w)
+				return
+			}
+			content.HandleError(fmt.Errorf("SQL error on insert: %v", err), l, t, w)
+			return
+		}
+		err = SQLInsertPassword(tx, u)
+		if err != nil {
+			txErr = tx.Rollback()
+			if txErr != nil {
+				content.HandleError(fmt.Errorf("SQL Tx error on rollback: %v. Error %v", txErr, err), l, t, w)
+				return
+			}
+			content.HandleError(fmt.Errorf("SQL error on insert password: %v", err), l, t, w)
+			return
+		}
+		err = SQLInsertMeta(tx, u)
+		if err != nil {
+			txErr = tx.Rollback()
+			if txErr != nil {
+				content.HandleError(fmt.Errorf("SQL Tx error on rollback: %v. Error %v", txErr, err), l, t, w)
+				return
+			}
+			content.HandleError(fmt.Errorf("SQL error on insert meta: %v", err), l, t, w)
+			return
+		}
+		err = tx.Commit()
+		if err != nil {
+			content.HandleError(fmt.Errorf("SQL error on commit: %v", err), l, t, w)
 		}
 	}
 }
